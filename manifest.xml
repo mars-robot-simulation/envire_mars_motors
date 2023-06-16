@@ -1,6 +1,6 @@
 <package>
     <description brief="envire_mars_motors">
-       This library adds plugin-based support of collision objects represented in envire.
+       This library adds plugin-based support of motors represented in envire.
     </description>
 	<maintainer>Malte Langosz/malte.langosz@dfki.de</maintainer>
     <!--depend package="base/types" /-->
