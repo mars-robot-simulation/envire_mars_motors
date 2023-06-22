@@ -100,8 +100,6 @@ namespace mars
             if (subControl == nullptr)
                 return;
 
-            std::cout << "CONFIG MOTOR: " << config.toJsonString() << std::endl;
-
             // TODO: we will not use prefix, when we move to base envire types
 
             LOG_INFO("Add motor item");
