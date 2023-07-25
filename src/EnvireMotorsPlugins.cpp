@@ -22,6 +22,7 @@
 #include <mars_interfaces/MotorData.h>
 #include <mars_interfaces/sim/SimulatorInterface.h>
 #include <mars_interfaces/sim/MotorManagerInterface.h>
+#include <mars_core/SimMotor.hpp>
 
 #define SIM_CENTER_FRAME_NAME "world"
 typedef envire::core::GraphTraits::vertex_descriptor VertexDesc;
@@ -141,10 +142,10 @@ namespace mars
             // TODO: add MotorInterface and store it in the graph instead of SimMotor
             unsigned long motorId = ControlCenter::motors->addMotor(&motorData, joint.get());
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
-            //std::shared_ptr<SimMotor> motor;
-            //motor.reset(control->motors->getSimMotor(motorId));
-            //envire::core::Item<std::shared_ptr<SimMotor>>::Ptr motorItemPtr(new envire::core::Item<std::shared_ptr<SimMotor>>(motor));
-            //ControlCenter::envireGraph->addItemToFrame(frameId, motorItemPtr);
+            std::shared_ptr<mars::core::SimMotor> motor;
+            motor.reset(ControlCenter::motors->getSimMotor(motorId));
+            envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr(new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor));
+            ControlCenter::envireGraph->addItemToFrame(frameId, motorItemPtr);
         }
     } // end of namespace envire_motors
 

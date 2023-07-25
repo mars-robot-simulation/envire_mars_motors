@@ -28,6 +28,7 @@ CMAKE_USE_FULL_RPATH("${CMAKE_INSTALL_PREFIX}/lib")
 pkg_check_modules(PKGCONFIG REQUIRED
     lib_manager
     mars_interfaces
+    mars_core
     mars_utils
     configmaps
     envire_core

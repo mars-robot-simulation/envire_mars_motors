@@ -57,6 +57,7 @@ namespace mars
             virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::PID>>& e) override;
 
         private:
+
             std::shared_ptr<interfaces::SubControlCenter> getControlCenter(envire::core::FrameId frame);
 
             void createMotor(configmaps::ConfigMap &config, const std::string &frameId);
