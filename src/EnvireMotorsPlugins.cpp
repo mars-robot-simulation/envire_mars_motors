@@ -140,7 +140,7 @@ namespace mars
 
             // todo: use shared_ptr in motor
             // TODO: add MotorInterface and store it in the graph instead of SimMotor
-            unsigned long motorId = ControlCenter::motors->addMotor(&motorData, joint.get());
+            unsigned long motorId = ControlCenter::motors->addMotor(&motorData, joint.get(), frameId);
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
             std::shared_ptr<mars::core::SimMotor> motor;
             motor.reset(ControlCenter::motors->getSimMotor(motorId));
