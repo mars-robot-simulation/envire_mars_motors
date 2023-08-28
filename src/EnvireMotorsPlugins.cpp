@@ -111,11 +111,13 @@ namespace mars
             size_t jointNumb = ControlCenter::envireGraph->getItemCount<envire::core::Item<JointInterfaceItem>>(frameId);
             if (jointNumb == 0)
             {
-                LOG_ERROR_S << "Can not create a motor, since the frame " << frameId << " does not contain any joint interface item.";
+                const std::string errmsg = "Can not create a motor, since the frame " + frameId + " does not contain any joint interface item.";
+                LOG_ERROR("%s", errmsg.c_str());
                 return;
             } else if (jointNumb > 1)
             {
-                LOG_ERROR_S << "Can not create a motor, since there are multiple joint interface items in the frame " << frameId << ".";
+                const std::string errmsg = "Can not create a motor, since there are multiple joint interface items in the frame " + frameId + ".";
+                LOG_ERROR("%s", errmsg.c_str());
                 return;
             }
 
@@ -124,7 +126,8 @@ namespace mars
 
             if (!joint)
             {
-                LOG_ERROR_S << "Can not create motor, there is a joint interface item in the frame " << frameId << ", but joint interface is not set.";
+                const std::string errmsg = "Can not create motor, there is a joint interface item in the frame " + frameId + ", but joint interface is not set.";
+                LOG_ERROR("%s", errmsg.c_str());
                 return;
             }
 
@@ -132,9 +135,8 @@ namespace mars
             joint->getName(&jointName);
             if (jointName != motorData.jointName)
             {
-                LOG_ERROR_S << "Can not create a motor, since the found joint interface does not correposponded to the motor by its name.";
-                LOG_ERROR_S << "Joint name required by motor: " << motorData.jointName;
-                LOG_ERROR_S << "Found joint name: " << jointName;
+                const std::string errmsg = "Can not create a motor, since the found joint interface does not correposponded to the motor by its name. Joint name required by motor: " + motorData.jointName + ". Found joint name: " + jointName;
+                LOG_ERROR("%s", errmsg.c_str());
                 return;
             }
 
