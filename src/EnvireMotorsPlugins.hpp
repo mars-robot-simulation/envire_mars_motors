@@ -10,7 +10,7 @@
 // TODO: check and clean the header includes
 
 #include <mars_interfaces/sim/ControlCenter.h>
-#include <mars_utils/Vector.h>
+#include <mars/utils/Vector.h>
 
 #include <lib_manager/LibInterface.hpp>
 

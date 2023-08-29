@@ -5,10 +5,8 @@
 	<maintainer>Malte Langosz/malte.langosz@dfki.de</maintainer>
     <!--depend package="base/types" /-->
     <depend package="simulation/lib_manager" />
-    <depend package="tools/configmaps" />
     <depend package="simulation/mars2/mars_interfaces" />
-    <!-- this dependency should be removed later, when motors will get its own interface -->
-    <depend package="simulation/mars2/mars_core" />
+    <depend package="tools/configmaps" />
     <depend package="envire/envire_core" />
     <depend package="envire/envire_base_types" />
     <tags>needs_opt</tags>

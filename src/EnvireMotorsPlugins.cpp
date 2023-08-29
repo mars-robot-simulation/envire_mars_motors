@@ -8,8 +8,8 @@
 
 //#include "PhysicsMapper.h"
 
-#include <mars_utils/mathUtils.h>
-#include <mars_utils/misc.h>
+#include <mars/utils/mathUtils.h>
+#include <mars/utils/misc.h>
 #include <mars_interfaces/graphics/GraphicsManagerInterface.h>
 #include <mars_interfaces/sim/LoadCenter.h>
 #include <mars_interfaces/sim/LoadSceneInterface.h>
@@ -111,13 +111,11 @@ namespace mars
             size_t jointNumb = ControlCenter::envireGraph->getItemCount<envire::core::Item<JointInterfaceItem>>(frameId);
             if (jointNumb == 0)
             {
-                const std::string errmsg = "Can not create a motor, since the frame " + frameId + " does not contain any joint interface item.";
-                LOG_ERROR("%s", errmsg.c_str());
+                LOG_ERROR_S << "Can not create a motor, since the frame " << frameId << " does not contain any joint interface item.";
                 return;
             } else if (jointNumb > 1)
             {
-                const std::string errmsg = "Can not create a motor, since there are multiple joint interface items in the frame " + frameId + ".";
-                LOG_ERROR("%s", errmsg.c_str());
+                LOG_ERROR_S << "Can not create a motor, since there are multiple joint interface items in the frame " << frameId << ".";
                 return;
             }
 
@@ -126,8 +124,7 @@ namespace mars
 
             if (!joint)
             {
-                const std::string errmsg = "Can not create motor, there is a joint interface item in the frame " + frameId + ", but joint interface is not set.";
-                LOG_ERROR("%s", errmsg.c_str());
+                LOG_ERROR_S << "Can not create motor, there is a joint interface item in the frame " << frameId << ", but joint interface is not set.";
                 return;
             }
 
@@ -135,14 +132,15 @@ namespace mars
             joint->getName(&jointName);
             if (jointName != motorData.jointName)
             {
-                const std::string errmsg = "Can not create a motor, since the found joint interface does not correposponded to the motor by its name. Joint name required by motor: " + motorData.jointName + ". Found joint name: " + jointName;
-                LOG_ERROR("%s", errmsg.c_str());
+                LOG_ERROR_S << "Can not create a motor, since the found joint interface does not correposponded to the motor by its name.";
+                LOG_ERROR_S << "Joint name required by motor: " << motorData.jointName;
+                LOG_ERROR_S << "Found joint name: " << jointName;
                 return;
             }
 
             // todo: use shared_ptr in motor
             // TODO: add MotorInterface and store it in the graph instead of SimMotor
-            unsigned long motorId = ControlCenter::motors->addMotor(&motorData, joint.get(), frameId);
+            unsigned long motorId = ControlCenter::motors->addMotor(&motorData, joint.get());
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
             std::shared_ptr<mars::core::SimMotor> motor;
             motor.reset(ControlCenter::motors->getSimMotor(motorId));
