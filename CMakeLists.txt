@@ -27,10 +27,10 @@ CMAKE_USE_FULL_RPATH("${CMAKE_INSTALL_PREFIX}/lib")
 #Get linker and compiler flags from pkg-config
 pkg_check_modules(PKGCONFIG REQUIRED
     lib_manager
-    mars_interfaces
-    mars_core
     mars_utils
     configmaps
+    mars_interfaces
+    mars_core # this dependency should be removed later, when motors will get its own interface
     envire_core
     envire_base_types
 )
