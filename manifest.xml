@@ -6,6 +6,7 @@
     <!--depend package="base/types" /-->
     <depend package="simulation/lib_manager" />
     <depend package="simulation/mars2/mars_interfaces" />
+    <depend package="simulation/mars2/mars_core" />
     <depend package="tools/configmaps" />
     <depend package="envire/envire_core" />
     <depend package="envire/envire_base_types" />
