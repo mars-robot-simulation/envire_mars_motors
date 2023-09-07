@@ -38,7 +38,13 @@ namespace mars
 
         public:
             EnvireMotorsPlugins(lib_manager::LibManager *theManager); ///< Constructor of the \c class Simulator.
+            EnvireMotorsPlugins(lib_manager::LibManager *theManager,
+                                std::shared_ptr<envire::core::EnvireGraph> envireGraph,
+                                std::shared_ptr<envire::core::TreeView> graphTreeView,
+                                std::shared_ptr<mars::interfaces::MotorManagerInterface> motors);
             virtual ~EnvireMotorsPlugins();
+
+            void init(void);
 
             // --- LibInterface ---
             int getLibVersion() const override
@@ -57,7 +63,9 @@ namespace mars
             virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::PID>>& e) override;
 
         private:
-
+            std::shared_ptr<envire::core::EnvireGraph> envireGraph;
+            std::shared_ptr<envire::core::TreeView> graphTreeView;
+            std::shared_ptr<mars::interfaces::MotorManagerInterface> motors;
             std::shared_ptr<interfaces::SubControlCenter> getControlCenter(envire::core::FrameId frame);
 
             void createMotor(configmaps::ConfigMap &config, const std::string &frameId);

@@ -40,8 +40,25 @@ namespace mars
         EnvireMotorsPlugins::EnvireMotorsPlugins(lib_manager::LibManager *theManager) :
             lib_manager::LibInterface(theManager)
         {
-            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DC>>::subscribe(ControlCenter::envireGraph.get());
-            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>::subscribe(ControlCenter::envireGraph.get());
+            envireGraph = ControlCenter::envireGraph;
+            graphTreeView = ControlCenter::graphTreeView;
+            motors = ControlCenter::motors;
+            init();
+        }
+
+        EnvireMotorsPlugins::EnvireMotorsPlugins(lib_manager::LibManager *theManager,
+                                                 std::shared_ptr<envire::core::EnvireGraph> envireGraph,
+                                                 std::shared_ptr<envire::core::TreeView> graphTreeView,
+                                                 std::shared_ptr<interfaces::MotorManagerInterface> motors) :
+            lib_manager::LibInterface(theManager), envireGraph(envireGraph), graphTreeView(graphTreeView), motors(motors)
+        {
+            init();
+        }
+
+        void EnvireMotorsPlugins::init(void)
+        {
+            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DC>>::subscribe(envireGraph.get());
+            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>::subscribe(envireGraph.get());
         }
 
         EnvireMotorsPlugins::~EnvireMotorsPlugins()
@@ -55,16 +72,16 @@ namespace mars
             bool done = false;
             while(!done)
             {
-                const envire::core::GraphTraits::vertex_descriptor vertex = ControlCenter::envireGraph->vertex(frame);
-                envire::core::GraphTraits::vertex_descriptor parentVertex = ControlCenter::graphTreeView->tree[vertex].parent;
+                const envire::core::GraphTraits::vertex_descriptor vertex = envireGraph->vertex(frame);
+                envire::core::GraphTraits::vertex_descriptor parentVertex = graphTreeView->tree[vertex].parent;
                 // todo: check if this check is correct
                 if(parentVertex)
                 {
-                    frame = ControlCenter::envireGraph->getFrameId(parentVertex);
+                    frame = envireGraph->getFrameId(parentVertex);
                     try
                     {
                         using SubControlItem = envire::core::Item<std::shared_ptr<SubControlCenter>>;
-                        envire::core::EnvireGraph::ItemIterator<SubControlItem> it = ControlCenter::envireGraph->getItem<SubControlItem>(frame);
+                        envire::core::EnvireGraph::ItemIterator<SubControlItem> it = envireGraph->getItem<SubControlItem>(frame);
                         return it->getData();
                     }
                     catch (...)
@@ -108,7 +125,7 @@ namespace mars
             motorData.fromConfigMap(&config, "");
 
             // there should be one joint and one motor in the same frame
-            size_t jointNumb = ControlCenter::envireGraph->getItemCount<envire::core::Item<JointInterfaceItem>>(frameId);
+            size_t jointNumb = envireGraph->getItemCount<envire::core::Item<JointInterfaceItem>>(frameId);
             if (jointNumb == 0)
             {
                 const std::string errmsg = "Can not create a motor, since the frame " + frameId + " does not contain any joint interface item.";
@@ -121,7 +138,7 @@ namespace mars
                 return;
             }
 
-            JointInterfaceItemItr jointItemItr = ControlCenter::envireGraph->getItem<envire::core::Item<JointInterfaceItem>>(frameId);
+            JointInterfaceItemItr jointItemItr = envireGraph->getItem<envire::core::Item<JointInterfaceItem>>(frameId);
             std::shared_ptr<JointInterface> joint = jointItemItr->getData().jointInterface;
 
             if (!joint)
@@ -142,12 +159,12 @@ namespace mars
 
             // todo: use shared_ptr in motor
             // TODO: add MotorInterface and store it in the graph instead of SimMotor
-            unsigned long motorId = ControlCenter::motors->addMotor(&motorData, joint.get(), frameId);
+            unsigned long motorId = motors->addMotor(&motorData, joint.get(), frameId);
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
             std::shared_ptr<mars::core::SimMotor> motor;
-            motor.reset(ControlCenter::motors->getSimMotor(motorId));
+            motor.reset(motors->getSimMotor(motorId));
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr(new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor));
-            ControlCenter::envireGraph->addItemToFrame(frameId, motorItemPtr);
+            envireGraph->addItemToFrame(frameId, motorItemPtr);
         }
     } // end of namespace envire_motors
 
