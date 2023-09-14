@@ -59,6 +59,7 @@ namespace mars
         {
             GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DC>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>::subscribe(envireGraph.get());
+            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DirectEffort>>::subscribe(envireGraph.get());
         }
 
         EnvireMotorsPlugins::~EnvireMotorsPlugins()
@@ -106,6 +107,13 @@ namespace mars
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::PID>>& e)
         {
             envire::base_types::motors::PID& motor = e.item->getData();
+            ConfigMap config = motor.getFullConfigMap();
+            createMotor(config, e.frame);
+        }
+
+        void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::DirectEffort>>& e)
+        {
+            envire::base_types::motors::DirectEffort& motor = e.item->getData();
             ConfigMap config = motor.getFullConfigMap();
             createMotor(config, e.frame);
         }

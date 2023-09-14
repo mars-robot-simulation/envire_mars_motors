@@ -22,6 +22,7 @@
 
 #include <envire_base_types/motors/DC.hpp>
 #include <envire_base_types/motors/PID.hpp>
+#include <envire_base_types/motors/DirectEffort.hpp>
 
 #include <iostream>
 
@@ -33,7 +34,8 @@ namespace mars
         class EnvireMotorsPlugins : public lib_manager::LibInterface,
                                     public envire::core::GraphEventDispatcher,
                                     public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DC>>,
-                                    public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>
+                                    public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>,
+                                    public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DirectEffort>>
         {
 
         public:
@@ -61,6 +63,7 @@ namespace mars
 
             virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::DC>>& e) override;
             virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::PID>>& e) override;
+            virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::DirectEffort>>& e) override;
 
         private:
             std::shared_ptr<envire::core::EnvireGraph> envireGraph;
