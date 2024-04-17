@@ -148,8 +148,7 @@ namespace mars
             }
 
             JointInterfaceItemItr jointItemItr = envireGraph->getItem<envire::core::Item<JointInterfaceItem>>(frameId);
-            const std::shared_ptr<JointInterface>& joint = jointItemItr->getData().jointInterface;
-
+            const std::shared_ptr<JointInterface> joint = jointItemItr->getData().jointInterface;
             if (!joint)
             {
                 const std::string errmsg = "Can not create motor, there is a joint interface item in the frame " + frameId + ", but joint interface is not set.";
@@ -168,7 +167,7 @@ namespace mars
 
             // todo: use shared_ptr in motor
             // TODO: add MotorInterface and store it in the graph instead of SimMotor
-            const unsigned long motorId = motors->addMotor(&motorData, joint.get(), frameId);
+            const unsigned long motorId = motors->addMotor(&motorData, joint, frameId);
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
             std::shared_ptr<mars::core::SimMotor> motor{motors->getSimMotor(motorId)};
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr(new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor));
