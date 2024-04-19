@@ -24,7 +24,6 @@
 #include <mars_interfaces/sim/MotorManagerInterface.h>
 #include <mars_core/SimMotor.hpp>
 
-#define SIM_CENTER_FRAME_NAME "world"
 typedef envire::core::GraphTraits::vertex_descriptor VertexDesc;
 
 namespace mars
