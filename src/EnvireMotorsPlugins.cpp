@@ -22,7 +22,6 @@
 #include <mars_interfaces/MotorData.h>
 #include <mars_interfaces/sim/SimulatorInterface.h>
 #include <mars_interfaces/sim/MotorManagerInterface.h>
-#include <mars_core/SimMotor.hpp>
 
 typedef envire::core::GraphTraits::vertex_descriptor VertexDesc;
 
@@ -59,6 +58,7 @@ namespace mars
             GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DC>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DirectEffort>>::subscribe(envireGraph.get());
+            GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<core::SimMotor>>>::subscribe(envireGraph.get());
         }
 
         EnvireMotorsPlugins::~EnvireMotorsPlugins()
@@ -115,6 +115,12 @@ namespace mars
             envire::base_types::motors::DirectEffort& motor = e.item->getData();
             ConfigMap config = motor.getFullConfigMap();
             createMotor(config, e.frame);
+        }
+
+        void EnvireMotorsPlugins::itemRemoved(const envire::core::TypedItemRemovedEvent<envire::core::Item<std::shared_ptr<core::SimMotor>>>& e)
+        {
+            const unsigned long motorID = ControlCenter::motors->getID(e.item->getData()->getName());
+            ControlCenter::motors->removeMotor(motorID);
         }
 
         void EnvireMotorsPlugins::createMotor(configmaps::ConfigMap &config, const std::string &frameId)
