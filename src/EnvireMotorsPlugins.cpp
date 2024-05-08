@@ -22,6 +22,9 @@
 #include <mars_interfaces/sim/SimulatorInterface.h>
 #include <mars_interfaces/sim/MotorManagerInterface.h>
 
+#include <mars_core/JointManager.hpp>
+#include <mars_core/MotorManager.hpp>
+
 
 namespace mars
 {
@@ -60,10 +63,21 @@ namespace mars
             GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DirectEffort>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<core::SimMotor>>>::subscribe(envireGraph.get());
+
+            sim = libManager->getLibraryAs<interfaces::SimulatorInterface>("mars_core");
+            if (!sim)
+            {
+                throw std::logic_error("EnivreMarsMotorsPlugins was unable to get library \"mars_core\".");
+            }
         }
 
         EnvireMotorsPlugins::~EnvireMotorsPlugins()
         {
+            if (sim)
+            {
+                libManager->releaseLibrary("mars_core");
+                sim = nullptr;
+            }
         }
 
         // TODO: this should be moved out from here
@@ -176,13 +190,67 @@ namespace mars
                 return;
             }
             motorData.jointIndex = ControlCenter::jointIDManager->getID(jointName);
+            motorData.index = ControlCenter::motorIDManager->addIfUnknown(motorData.name);
 
-            // TODO: add MotorInterface and store it in the graph instead of SimMotor
-            const auto& motorId = motors->addMotor(&motorData);
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
-            const std::shared_ptr<core::SimMotor> motor{motors->getSimMotor(motorId)};
+            auto motor = createSimMotor(motorData);
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr{new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor)};
             envireGraph->addItemToFrame(frameId, motorItemPtr);
+
+            std::dynamic_pointer_cast<core::MotorManager>(ControlCenter::motors)->addSimMotor(motor);
+        }
+
+
+        std::shared_ptr<core::SimMotor> EnvireMotorsPlugins::createSimMotor(const interfaces::MotorData& motorData) const
+        {
+            auto joint = std::dynamic_pointer_cast<core::JointManager>(ControlCenter::joints)->getJointInterface(motorData.jointIndex);
+            auto newMotor = std::make_shared<core::SimMotor>(sim->getControlCenter(), motorData, joint);
+
+            newMotor->setSMotor(motorData);
+
+            // TODO: Use "const auto& version" as soon as configmaps::ConfigMap is const-correct.
+            //const auto& config = motorData.config;
+            configmaps::ConfigMap config = motorData.config;
+
+            // set approximation functions
+            if(config.find("maxeffort_approximation") != config.end())
+            {
+                std::vector<sReal>* maxeffort_coefficients = new std::vector<sReal>;
+                ConfigVector::iterator vIt = config["maxeffort_coefficients"].begin();
+                for(; vIt != config["maxeffort_coefficients"].end(); ++vIt)
+                {
+                    maxeffort_coefficients->push_back((double)(*vIt));
+                    newMotor->setMaxEffortApproximation(
+                        utils::getApproximationFunctionFromString(config["maxeffort_approximation"].toString()),
+                        maxeffort_coefficients);
+                }
+            }
+            if(config.find("maxspeed_approximation") != config.end())
+            {
+                std::vector<sReal>* maxspeed_coefficients = new std::vector<sReal>;
+                ConfigVector::iterator vIt = config["maxspeed_coefficients"].begin();
+                for(; vIt != config["maxspeed_coefficients"].end(); ++vIt)
+                {
+                    maxspeed_coefficients->push_back((double)(*vIt));
+                    newMotor->setMaxSpeedApproximation(
+                        utils::getApproximationFunctionFromString(config["maxspeed_approximation"].toString()),
+                        maxspeed_coefficients);
+                }
+            }
+            if(config.find("current_approximation") != config.end())
+            {
+                std::vector<sReal>* current_coefficients = new std::vector<sReal>;
+                ConfigVector::iterator vIt = config["current_coefficients"].begin();
+                for(; vIt != config["current_coefficients"].end(); ++vIt)
+                {
+                    current_coefficients->push_back((double)(*vIt));
+                    newMotor->setCurrentApproximation(
+                        utils::getApproximationFunction2DFromString(config["current_approximation"].toString()),
+                        current_coefficients);
+                }
+            }
+
+            return newMotor;
         }
     } // end of namespace envire_motors
 } // end of namespace mars

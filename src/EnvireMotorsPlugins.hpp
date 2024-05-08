@@ -70,11 +70,14 @@ namespace mars
             // TODO: Move to central location
             std::shared_ptr<interfaces::SubControlCenter> getControlCenter(envire::core::FrameId frame);
 
+            interfaces::SimulatorInterface* sim{nullptr};
             std::shared_ptr<envire::core::EnvireGraph> envireGraph;
             std::shared_ptr<envire::core::TreeView> graphTreeView;
             std::shared_ptr<mars::interfaces::MotorManagerInterface> motors;
 
             void createMotor(configmaps::ConfigMap &config, const std::string &frameId);
+            // TODO: Create "MotorInterfaceItem" instead
+            std::shared_ptr<core::SimMotor> createSimMotor(const interfaces::MotorData& motorData) const;
         };
 
     } // end of namespace envire_motors
