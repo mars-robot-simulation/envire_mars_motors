@@ -6,7 +6,8 @@
 
 #include "EnvireMotorsPlugins.hpp"
 
-//#include "PhysicsMapper.h"
+#include <lib_manager/LibInterface.hpp>
+#include <lib_manager/LibManager.hpp>
 
 #include <mars_utils/mathUtils.h>
 #include <mars_utils/misc.h>
@@ -14,8 +15,6 @@
 #include <mars_interfaces/sim/LoadCenter.h>
 #include <mars_interfaces/sim/LoadSceneInterface.h>
 #include <mars_interfaces/sim/JointInterface.h>
-#include <lib_manager/LibInterface.hpp>
-#include <lib_manager/LibManager.hpp>
 
 #include <mars_interfaces/Logging.hpp>
 
@@ -23,7 +22,6 @@
 #include <mars_interfaces/sim/SimulatorInterface.h>
 #include <mars_interfaces/sim/MotorManagerInterface.h>
 
-typedef envire::core::GraphTraits::vertex_descriptor VertexDesc;
 
 namespace mars
 {
@@ -36,11 +34,11 @@ namespace mars
         using namespace configmaps;
 
         EnvireMotorsPlugins::EnvireMotorsPlugins(lib_manager::LibManager *theManager) :
-            lib_manager::LibInterface(theManager)
+            lib_manager::LibInterface{theManager},
+            envireGraph{ControlCenter::envireGraph},
+            graphTreeView{ControlCenter::graphTreeView},
+            motors{ControlCenter::motors}
         {
-            envireGraph = ControlCenter::envireGraph;
-            graphTreeView = ControlCenter::graphTreeView;
-            motors = ControlCenter::motors;
             init();
         }
 
@@ -48,7 +46,10 @@ namespace mars
                                                  std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                                  std::shared_ptr<envire::core::TreeView> graphTreeView,
                                                  std::shared_ptr<interfaces::MotorManagerInterface> motors) :
-            lib_manager::LibInterface(theManager), envireGraph(envireGraph), graphTreeView(graphTreeView), motors(motors)
+            lib_manager::LibInterface{theManager},
+            envireGraph{envireGraph},
+            graphTreeView{graphTreeView},
+            motors{motors}
         {
             init();
         }
@@ -128,8 +129,10 @@ namespace mars
             using JointInterfaceItemItr = envire::core::EnvireGraph::ItemIterator<envire::core::Item<JointInterfaceItem>>;
 
             std::shared_ptr<interfaces::SubControlCenter> subControl = getControlCenter(frameId);
-            if (subControl == nullptr)
+            if (!subControl)
+            {
                 return;
+            }
 
             // TODO: we will not use prefix, when we move to base envire types
 
@@ -138,16 +141,16 @@ namespace mars
             motorData.fromConfigMap(&config, "");
 
             // there should be one joint and one motor in the same frame
-            size_t jointNumb = envireGraph->getItemCount<envire::core::Item<JointInterfaceItem>>(frameId);
-            if (jointNumb == 0)
+            const size_t num_joints = envireGraph->getItemCount<envire::core::Item<JointInterfaceItem>>(frameId);
+            if (num_joints == 0)
             {
-                const std::string errmsg = "Can not create a motor, since the frame " + frameId + " does not contain any joint interface item.";
+                const std::string errmsg{"Can not create a motor, since the frame " + frameId + " does not contain any joint interface item."};
                 LOG_ERROR("%s", errmsg.c_str());
                 return;
             } 
-            else if (jointNumb > 1)
+            else if (num_joints > 1)
             {
-                const std::string errmsg = "Can not create a motor, since there are multiple joint interface items in the frame " + frameId + ".";
+                const std::string errmsg{"Can not create a motor, since there are multiple joint interface items in the frame " + frameId + "."};
                 LOG_ERROR("%s", errmsg.c_str());
                 return;
             }
@@ -156,7 +159,7 @@ namespace mars
             const std::shared_ptr<JointInterface> joint = jointItemItr->getData().jointInterface;
             if (!joint)
             {
-                const std::string errmsg = "Can not create motor, there is a joint interface item in the frame " + frameId + ", but joint interface is not set.";
+                const std::string errmsg{"Can not create motor, there is a joint interface item in the frame " + frameId + ", but joint interface is not set."};
                 LOG_ERROR("%s", errmsg.c_str());
                 return;
             }
@@ -165,7 +168,7 @@ namespace mars
             joint->getName(&jointName);
             if (jointName != motorData.jointName)
             {
-                const std::string errmsg = "Can not create a motor, since the found joint interface does not correposponded to the motor by its name. Joint name required by motor: " + motorData.jointName + ". Found joint name: " + jointName;
+                const std::string errmsg{"Can not create a motor, since the found joint interface does not correposponded to the motor by its name. Joint name required by motor: " + motorData.jointName + ". Found joint name: " + jointName};
                 LOG_ERROR("%s", errmsg.c_str());
                 return;
             }
@@ -175,12 +178,12 @@ namespace mars
             const unsigned long motorId = motors->addMotor(&motorData);
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
             std::shared_ptr<mars::core::SimMotor> motor{motors->getSimMotor(motorId)};
-            envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr(new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor));
+            envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr{new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor)};
             envireGraph->addItemToFrame(frameId, motorItemPtr);
         }
     } // end of namespace envire_motors
-
 } // end of namespace mars
+
 
 DESTROY_LIB(mars::envire_motors::EnvireMotorsPlugins);
 CREATE_LIB(mars::envire_motors::EnvireMotorsPlugins);

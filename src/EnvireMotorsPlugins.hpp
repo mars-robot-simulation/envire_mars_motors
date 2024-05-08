@@ -1,16 +1,11 @@
 /**
- * \file EnvireOdePhysicsPlugins.hpp
+ * \file EnvireMotorsPlugins.hpp
  * \author Malte Langosz
  * \brief Plugin class to load physics representation based on envire items
  *
  */
 
 #pragma once
-
-// TODO: check and clean the header includes
-
-#include <mars_interfaces/sim/ControlCenter.h>
-#include <mars_utils/Vector.h>
 
 #include <lib_manager/LibInterface.hpp>
 
@@ -24,9 +19,11 @@
 #include <envire_base_types/motors/PID.hpp>
 #include <envire_base_types/motors/DirectEffort.hpp>
 
+#include <mars_interfaces/sim/ControlCenter.h>
+#include <mars_utils/Vector.h>
+// TODO: Remove when SimMotor is no longer stored in envireGraph
 #include <mars_core/SimMotor.hpp>
 
-#include <iostream>
 
 namespace mars
 {
@@ -59,7 +56,7 @@ namespace mars
 
             const std::string getLibName() const override
             {
-                return std::string("envire_mars_motors");
+                return std::string{"envire_mars_motors"};
             }
 
             CREATE_MODULE_INFO();
@@ -70,10 +67,12 @@ namespace mars
             virtual void itemRemoved(const envire::core::TypedItemRemovedEvent<envire::core::Item<std::shared_ptr<core::SimMotor>>>& e) override;
 
         private:
+            // TODO: Move to central location
+            std::shared_ptr<interfaces::SubControlCenter> getControlCenter(envire::core::FrameId frame);
+
             std::shared_ptr<envire::core::EnvireGraph> envireGraph;
             std::shared_ptr<envire::core::TreeView> graphTreeView;
             std::shared_ptr<mars::interfaces::MotorManagerInterface> motors;
-            std::shared_ptr<interfaces::SubControlCenter> getControlCenter(envire::core::FrameId frame);
 
             void createMotor(configmaps::ConfigMap &config, const std::string &frameId);
         };
