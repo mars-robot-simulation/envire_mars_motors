@@ -59,9 +59,9 @@ namespace mars
 
         void EnvireMotorsPlugins::init(void)
         {
-            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DC>>::subscribe(envireGraph.get());
-            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::PID>>::subscribe(envireGraph.get());
-            GraphItemEventDispatcher<envire::core::Item<::envire::base_types::motors::DirectEffort>>::subscribe(envireGraph.get());
+            GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DC>>::subscribe(envireGraph.get());
+            GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::PID>>::subscribe(envireGraph.get());
+            GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DirectEffort>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<core::SimMotor>>>::subscribe(envireGraph.get());
 
             sim = libManager->getLibraryAs<interfaces::SimulatorInterface>("mars_core");
@@ -112,7 +112,7 @@ namespace mars
         }
 
         // TODO use template method
-        void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::DC>>& e)
+        void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DC>>& e)
         {
             auto& motor = e.item->getData();
             auto config = motor.getFullConfigMap();
@@ -120,7 +120,7 @@ namespace mars
         }
 
         // TODO use template method
-        void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::PID>>& e)
+        void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::PID>>& e)
         {
             auto& motor = e.item->getData();
             auto config = motor.getFullConfigMap();
@@ -128,7 +128,7 @@ namespace mars
         }
 
         // TODO use template method
-        void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::base_types::motors::DirectEffort>>& e)
+        void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DirectEffort>>& e)
         {
             auto& motor = e.item->getData();
             auto config = motor.getFullConfigMap();

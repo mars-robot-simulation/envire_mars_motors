@@ -10,6 +10,6 @@
     <!-- this dependency should be removed later, when motors will get its own interface -->
     <depend package="simulation/mars2/mars_core" />
     <depend package="envire/envire_core" />
-    <depend package="envire/envire_base_types" />
+    <depend package="envire/envire_types" />
     <tags>needs_opt</tags>
 </package>

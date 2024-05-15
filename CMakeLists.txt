@@ -32,7 +32,7 @@ pkg_check_modules(PKGCONFIG REQUIRED
     mars_interfaces
     mars_core # this dependency should be removed later, when motors will get its own interface
     envire_core
-    envire_base_types
+    envire_types
 )
 
 include_directories(${PKGCONFIG_INCLUDE_DIRS})
