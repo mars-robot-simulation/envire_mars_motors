@@ -185,7 +185,7 @@ namespace mars
             joint->getName(&jointName);
             if (jointName != motorData.jointName)
             {
-                const auto errmsg = std::string{"Can not create a motor, since the found joint interface does not correposponded to the motor by its name. Joint name required by motor: " + motorData.jointName + ". Found joint name: " + jointName};
+                const auto errmsg = std::string{"Can not create a motor, since the found joint interface does not correspond to the motor by its name. Joint name required by motor: " + motorData.jointName + ". Found joint name: " + jointName};
                 LOG_ERROR("%s", errmsg.c_str());
                 return;
             }
