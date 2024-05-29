@@ -189,10 +189,10 @@ namespace mars
                 LOG_WARN(errmsg.c_str());
                 motorData.jointName = jointName;
             }
-            motorData.jointIndex = ControlCenter::jointIDManager->getID(frameId);
+            motorData.jointIndex = ControlCenter::jointIDManager->getID(jointName);
+            motorData.index = ControlCenter::motorIDManager->addIfUnknown(motorData.name);
 
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
-            motorData.index = ControlCenter::motorIDManager->addIfUnknown(motorData.name);
             auto motor = createSimMotor(motorData);
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr{new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor)};
             envireGraph->addItemToFrame(frameId, motorItemPtr);
