@@ -153,7 +153,7 @@ namespace mars
 
             // TODO: we will not use prefix, when we move to base envire types
 
-            LOG_INFO("Add motor item");
+            LOG_INFO(std::string{"Add motor item to frame \"" + frameId + "\"."}.c_str());
             MotorData motorData;
             motorData.fromConfigMap(&config, "");
 
@@ -185,14 +185,14 @@ namespace mars
             joint->getName(&jointName);
             if (jointName != motorData.jointName)
             {
-                const auto errmsg = std::string{"Can not create a motor, since the found joint interface does not correspond to the motor by its name. Joint name required by motor: " + motorData.jointName + ". Found joint name: " + jointName};
-                LOG_ERROR("%s", errmsg.c_str());
-                return;
+                const auto errmsg = std::string{"Motor is configured to be correspond to joint named \""} + motorData.jointName + "\" but the joint contained in frame \"" + frameId + "\" is named \"" + jointName + "\". The motor will be actuating on this existing joint!";
+                LOG_WARN(errmsg.c_str());
+                motorData.jointName = jointName;
             }
-            motorData.jointIndex = ControlCenter::jointIDManager->getID(jointName);
-            motorData.index = ControlCenter::motorIDManager->addIfUnknown(motorData.name);
+            motorData.jointIndex = ControlCenter::jointIDManager->getID(frameId);
 
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
+            motorData.index = ControlCenter::motorIDManager->addIfUnknown(motorData.name);
             auto motor = createSimMotor(motorData);
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr{new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor)};
             envireGraph->addItemToFrame(frameId, motorItemPtr);
