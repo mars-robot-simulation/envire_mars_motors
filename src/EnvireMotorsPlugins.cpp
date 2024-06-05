@@ -1,5 +1,5 @@
 /**
- * \file EnvireMotorsPlugins.cpp
+0;95;0c * \file EnvireMotorsPlugins.cpp
  * \author Malte Langosz
  *
  */
@@ -40,7 +40,10 @@ namespace mars
             lib_manager::LibInterface{theManager},
             envireGraph{ControlCenter::envireGraph},
             graphTreeView{ControlCenter::graphTreeView},
-            motors{ControlCenter::motors}
+            joints{ControlCenter::joints},
+            motors{ControlCenter::motors},
+            jointIDManager{ControlCenter::jointIDManager_},
+            motorIDManager{ControlCenter::motorIDManager_}
         {
             init();
         }
@@ -48,11 +51,17 @@ namespace mars
         EnvireMotorsPlugins::EnvireMotorsPlugins(lib_manager::LibManager *theManager,
                                                  std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                                  std::shared_ptr<envire::core::TreeView> graphTreeView,
-                                                 std::shared_ptr<interfaces::MotorManagerInterface> motors) :
+                                                 std::shared_ptr<interfaces::JointManagerInterface> joints,
+                                                 std::shared_ptr<interfaces::MotorManagerInterface> motors,
+                                                 std::shared_ptr<IDManager> JointIDManager,
+                                                 std::shared_ptr<IDManager> motorIDManager) :
             lib_manager::LibInterface{theManager},
             envireGraph{envireGraph},
             graphTreeView{graphTreeView},
-            motors{motors}
+            joints{joints},
+            motors{motors},
+            jointIDManager(jointIDManager),
+            motorIDManager(motorIDManager)
         {
             init();
         }
@@ -137,8 +146,8 @@ namespace mars
 
         void EnvireMotorsPlugins::itemRemoved(const envire::core::TypedItemRemovedEvent<envire::core::Item<std::shared_ptr<core::SimMotor>>>& e)
         {
-            const auto& motorID = ControlCenter::motors->getID(e.item->getData()->getName());
-            ControlCenter::motors->removeMotor(motorID);
+            const auto& motorID = motors->getID(e.item->getData()->getName());
+            motors->removeMotor(motorID);
         }
 
         void EnvireMotorsPlugins::createMotor(configmaps::ConfigMap &config, const std::string &frameId)
@@ -189,21 +198,21 @@ namespace mars
                 LOG_WARN(errmsg.c_str());
                 motorData.jointName = jointName;
             }
-            motorData.jointIndex = ControlCenter::jointIDManager->getID(jointName);
-            motorData.index = ControlCenter::motorIDManager->addIfUnknown(motorData.name);
+            motorData.jointIndex = jointIDManager->getID(jointName);
+            motorData.index = motorIDManager->addIfUnknown(motorData.name);
 
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
             auto motor = createSimMotor(motorData);
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr{new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor)};
             envireGraph->addItemToFrame(frameId, motorItemPtr);
 
-            std::dynamic_pointer_cast<core::MotorManager>(ControlCenter::motors)->addSimMotor(motor);
+            std::dynamic_pointer_cast<core::MotorManager>(motors)->addSimMotor(motor);
         }
 
 
         std::shared_ptr<core::SimMotor> EnvireMotorsPlugins::createSimMotor(const interfaces::MotorData& motorData) const
         {
-            auto joint = std::dynamic_pointer_cast<core::JointManager>(ControlCenter::joints)->getJointInterface(motorData.jointIndex);
+            auto joint = joints->getJointInterface(motorData.jointIndex);
             auto newMotor = std::make_shared<core::SimMotor>(sim->getControlCenter(), motorData, joint);
 
             newMotor->setSMotor(motorData);

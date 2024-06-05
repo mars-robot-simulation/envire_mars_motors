@@ -43,7 +43,10 @@ namespace mars
             EnvireMotorsPlugins(lib_manager::LibManager *theManager,
                                 std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                 std::shared_ptr<envire::core::TreeView> graphTreeView,
-                                std::shared_ptr<mars::interfaces::MotorManagerInterface> motors);
+                                std::shared_ptr<mars::interfaces::JointManagerInterface> joints,
+                                std::shared_ptr<mars::interfaces::MotorManagerInterface> motors,
+                                std::shared_ptr<mars::interfaces::IDManager> JointIDManager,
+                                std::shared_ptr<mars::interfaces::IDManager> motorIDManager);
             virtual ~EnvireMotorsPlugins();
 
             void init(void);
@@ -73,7 +76,10 @@ namespace mars
             interfaces::SimulatorInterface* sim{nullptr};
             std::shared_ptr<envire::core::EnvireGraph> envireGraph;
             std::shared_ptr<envire::core::TreeView> graphTreeView;
+            std::shared_ptr<mars::interfaces::JointManagerInterface> joints;
             std::shared_ptr<mars::interfaces::MotorManagerInterface> motors;
+            std::shared_ptr<mars::interfaces::IDManager> jointIDManager;
+            std::shared_ptr<mars::interfaces::IDManager> motorIDManager;
 
             void createMotor(configmaps::ConfigMap &config, const std::string &frameId);
             // TODO: Create "MotorInterfaceItem" instead
