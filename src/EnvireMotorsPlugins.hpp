@@ -18,6 +18,7 @@
 #include <envire_types/motors/DC.hpp>
 #include <envire_types/motors/PID.hpp>
 #include <envire_types/motors/DirectEffort.hpp>
+#include <envire_types/motors/FeedForwardEffort.hpp>
 
 #include <mars_interfaces/sim/ControlCenter.h>
 #include <mars_utils/Vector.h>
@@ -35,6 +36,7 @@ namespace mars
                                     public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DC>>,
                                     public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::PID>>,
                                     public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DirectEffort>>,
+                                    public envire::core::GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::FeedForwardEffort>>,
                                     public envire::core::GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<core::SimMotor>>>
         {
 
@@ -66,6 +68,7 @@ namespace mars
             virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DC>>& e) override;
             virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::PID>>& e) override;
             virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DirectEffort>>& e) override;
+            virtual void itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::FeedForwardEffort>>& e) override;
             virtual void itemRemoved(const envire::core::TypedItemRemovedEvent<envire::core::Item<std::shared_ptr<core::SimMotor>>>& e) override;
 
         private:
