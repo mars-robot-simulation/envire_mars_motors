@@ -43,9 +43,8 @@ namespace mars
             EnvireMotorsPlugins(lib_manager::LibManager *theManager,
                                 std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                 std::shared_ptr<envire::core::TreeView> graphTreeView,
-                                std::shared_ptr<mars::interfaces::JointManagerInterface> joints,
                                 std::shared_ptr<mars::interfaces::MotorManagerInterface> motors,
-                                std::shared_ptr<mars::interfaces::IDManager> JointIDManager,
+                                std::shared_ptr<mars::interfaces::IDManager> jointIDManager,
                                 std::shared_ptr<mars::interfaces::IDManager> motorIDManager);
             virtual ~EnvireMotorsPlugins();
 
@@ -73,17 +72,15 @@ namespace mars
             // TODO: Move to central location
             std::shared_ptr<interfaces::SubControlCenter> getControlCenter(envire::core::FrameId frame);
 
-            interfaces::SimulatorInterface* sim{nullptr};
             std::shared_ptr<envire::core::EnvireGraph> envireGraph;
             std::shared_ptr<envire::core::TreeView> graphTreeView;
-            std::shared_ptr<mars::interfaces::JointManagerInterface> joints;
             std::shared_ptr<mars::interfaces::MotorManagerInterface> motors;
             std::shared_ptr<mars::interfaces::IDManager> jointIDManager;
             std::shared_ptr<mars::interfaces::IDManager> motorIDManager;
 
             void createMotor(configmaps::ConfigMap &config, const std::string &frameId);
             // TODO: Create "MotorInterfaceItem" instead
-            std::shared_ptr<core::SimMotor> createSimMotor(const interfaces::MotorData& motorData) const;
+            std::shared_ptr<core::SimMotor> createSimMotor(const interfaces::MotorData& motorData, std::weak_ptr<interfaces::JointInterface> joint, interfaces::ControlCenter *c) const;
         };
 
     } // end of namespace envire_motors

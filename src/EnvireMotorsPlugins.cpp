@@ -1,5 +1,5 @@
 /**
-0;95;0c * \file EnvireMotorsPlugins.cpp
+ * \file EnvireMotorsPlugins.cpp
  * \author Malte Langosz
  *
  */
@@ -22,7 +22,6 @@
 #include <mars_interfaces/sim/SimulatorInterface.h>
 #include <mars_interfaces/sim/MotorManagerInterface.h>
 
-#include <mars_core/JointManager.hpp>
 #include <mars_core/MotorManager.hpp>
 
 
@@ -40,7 +39,6 @@ namespace mars
             lib_manager::LibInterface{theManager},
             envireGraph{ControlCenter::envireGraph},
             graphTreeView{ControlCenter::graphTreeView},
-            joints{ControlCenter::joints},
             motors{ControlCenter::motors},
             jointIDManager{ControlCenter::jointIDManager_},
             motorIDManager{ControlCenter::motorIDManager_}
@@ -51,14 +49,12 @@ namespace mars
         EnvireMotorsPlugins::EnvireMotorsPlugins(lib_manager::LibManager *theManager,
                                                  std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                                  std::shared_ptr<envire::core::TreeView> graphTreeView,
-                                                 std::shared_ptr<interfaces::JointManagerInterface> joints,
                                                  std::shared_ptr<interfaces::MotorManagerInterface> motors,
-                                                 std::shared_ptr<IDManager> JointIDManager,
+                                                 std::shared_ptr<IDManager> jointIDManager,
                                                  std::shared_ptr<IDManager> motorIDManager) :
             lib_manager::LibInterface{theManager},
             envireGraph{envireGraph},
             graphTreeView{graphTreeView},
-            joints{joints},
             motors{motors},
             jointIDManager(jointIDManager),
             motorIDManager(motorIDManager)
@@ -73,20 +69,10 @@ namespace mars
             GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DirectEffort>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<core::SimMotor>>>::subscribe(envireGraph.get());
 
-            sim = libManager->getLibraryAs<interfaces::SimulatorInterface>("mars_core");
-            if (!sim)
-            {
-                throw std::logic_error("EnivreMarsMotorsPlugins was unable to get library \"mars_core\".");
-            }
         }
 
         EnvireMotorsPlugins::~EnvireMotorsPlugins()
         {
-            if (sim)
-            {
-                libManager->releaseLibrary("mars_core");
-                sim = nullptr;
-            }
         }
 
         // TODO: this should be moved out from here
@@ -198,11 +184,17 @@ namespace mars
                 LOG_WARN(errmsg.c_str());
                 motorData.jointName = jointName;
             }
-            motorData.jointIndex = jointIDManager->getID(jointName);
-            motorData.index = motorIDManager->addIfUnknown(motorData.name);
 
+            // todo: can we get the joint id from the joint itself if we need it?
+            if(jointIDManager) {
+                motorData.jointIndex = jointIDManager->getID(jointName);
+            }
+            if(motorIDManager)
+            {
+                motorData.index = motorIDManager->addIfUnknown(motorData.name);
+            }
             // TODO: we should replace SimMotor by MotorInterface how it was done for joints
-            auto motor = createSimMotor(motorData);
+            auto motor = createSimMotor(motorData, joint, subControl->control);
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr{new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor)};
             envireGraph->addItemToFrame(frameId, motorItemPtr);
 
@@ -210,10 +202,9 @@ namespace mars
         }
 
 
-        std::shared_ptr<core::SimMotor> EnvireMotorsPlugins::createSimMotor(const interfaces::MotorData& motorData) const
+        std::shared_ptr<core::SimMotor> EnvireMotorsPlugins::createSimMotor(const interfaces::MotorData& motorData, std::weak_ptr<interfaces::JointInterface> joint, ControlCenter *c) const
         {
-            auto joint = joints->getJointInterface(motorData.jointIndex);
-            auto newMotor = std::make_shared<core::SimMotor>(sim->getControlCenter(), motorData, joint);
+            auto newMotor = std::make_shared<core::SimMotor>(c, motorData, joint);
 
             newMotor->setSMotor(motorData);
 
