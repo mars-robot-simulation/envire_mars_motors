@@ -106,30 +106,22 @@ namespace mars
 
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DC>>& e)
         {
-            auto& motor = e.item->getData();
-            auto config = motor.getFullConfigMap();
-            createMotor(config, e.frame);
+            handleAddedMotor(e);
         }
 
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::PID>>& e)
         {
-            auto& motor = e.item->getData();
-            auto config = motor.getFullConfigMap();
-            createMotor(config, e.frame);
+            handleAddedMotor(e);
         }
 
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DirectEffort>>& e)
         {
-            auto& motor = e.item->getData();
-            auto config = motor.getFullConfigMap();
-            createMotor(config, e.frame);
+            handleAddedMotor(e);
         }
 
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::FeedForwardEffort>>& e)
         {
-            auto& motor = e.item->getData();
-            auto config = motor.getFullConfigMap();
-            createMotor(config, e.frame);
+            handleAddedMotor(e);
         }
 
         void EnvireMotorsPlugins::itemRemoved(const envire::core::TypedItemRemovedEvent<envire::core::Item<std::shared_ptr<core::SimMotor>>>& e)

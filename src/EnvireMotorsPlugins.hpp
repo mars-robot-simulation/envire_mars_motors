@@ -79,6 +79,14 @@ namespace mars
             std::shared_ptr<mars::interfaces::MotorManagerInterface> motors;
             std::shared_ptr<mars::interfaces::IDManager> jointIDManager;
 
+            template <class T>
+            void handleAddedMotor(T e)
+            {
+                auto& motor = e.item->getData();
+                auto config = motor.getFullConfigMap();
+                createMotor(config, e.frame);
+            }
+
             void createMotor(configmaps::ConfigMap &config, const std::string &frameId);
             // TODO: Create "MotorInterfaceItem" instead
             std::shared_ptr<core::SimMotor> createSimMotor(const interfaces::MotorData& motorData, std::weak_ptr<interfaces::JointInterface> joint, interfaces::ControlCenter *c) const;
