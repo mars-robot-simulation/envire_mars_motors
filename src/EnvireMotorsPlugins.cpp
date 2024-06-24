@@ -40,8 +40,7 @@ namespace mars
             envireGraph{ControlCenter::envireGraph},
             graphTreeView{ControlCenter::graphTreeView},
             motors{ControlCenter::motors},
-            jointIDManager{ControlCenter::jointIDManager_},
-            motorIDManager{ControlCenter::motorIDManager_}
+            jointIDManager{ControlCenter::jointIDManager_}
         {
             init();
         }
@@ -50,14 +49,12 @@ namespace mars
                                                  std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                                  std::shared_ptr<envire::core::TreeView> graphTreeView,
                                                  std::shared_ptr<interfaces::MotorManagerInterface> motors,
-                                                 std::shared_ptr<IDManager> jointIDManager,
-                                                 std::shared_ptr<IDManager> motorIDManager) :
+                                                 std::shared_ptr<IDManager> jointIDManager) :
             lib_manager::LibInterface{theManager},
             envireGraph{envireGraph},
             graphTreeView{graphTreeView},
             motors{motors},
-            jointIDManager(jointIDManager),
-            motorIDManager(motorIDManager)
+            jointIDManager(jointIDManager)
         {
             init();
         }
@@ -107,7 +104,6 @@ namespace mars
             return nullptr;
         }
 
-        // TODO use template method
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DC>>& e)
         {
             auto& motor = e.item->getData();
@@ -115,7 +111,6 @@ namespace mars
             createMotor(config, e.frame);
         }
 
-        // TODO use template method
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::PID>>& e)
         {
             auto& motor = e.item->getData();
@@ -123,7 +118,6 @@ namespace mars
             createMotor(config, e.frame);
         }
 
-        // TODO use template method
         void EnvireMotorsPlugins::itemAdded(const envire::core::TypedItemAddedEvent<envire::core::Item<::envire::types::motors::DirectEffort>>& e)
         {
             auto& motor = e.item->getData();
@@ -197,11 +191,11 @@ namespace mars
             if(jointIDManager) {
                 motorData.jointIndex = jointIDManager->getID(jointName);
             }
-            if(motorIDManager)
+            if(motors)
             {
-                motorData.index = motorIDManager->addIfUnknown(motorData.name);
+                motorData.index = std::dynamic_pointer_cast<core::MotorManager>(motors)->registerMotorID(motorData.name);
             }
-            // TODO: we should replace SimMotor by MotorInterface how it was done for joints
+            // TODO: we should replace SimMotor by MotorInterface how it was done for joints (https://github.com/mars-robot-simulation/mars_interfaces/issues/1)
             auto motor = createSimMotor(motorData, joint, subControl->control);
             envire::core::Item<std::shared_ptr<mars::core::SimMotor>>::Ptr motorItemPtr{new envire::core::Item<std::shared_ptr<mars::core::SimMotor>>(motor)};
             envireGraph->addItemToFrame(frameId, motorItemPtr);
