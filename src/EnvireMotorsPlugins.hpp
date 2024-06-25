@@ -46,7 +46,7 @@ namespace mars
                                 std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                 std::shared_ptr<envire::core::TreeView> graphTreeView,
                                 std::shared_ptr<mars::interfaces::MotorManagerInterface> motors,
-                                std::shared_ptr<mars::interfaces::IDManager> jointIDManager);
+                                std::shared_ptr<mars::interfaces::JointManagerInterface> joints);
             virtual ~EnvireMotorsPlugins();
 
             void init(void);
@@ -77,7 +77,7 @@ namespace mars
             std::shared_ptr<envire::core::EnvireGraph> envireGraph;
             std::shared_ptr<envire::core::TreeView> graphTreeView;
             std::shared_ptr<mars::interfaces::MotorManagerInterface> motors;
-            std::shared_ptr<mars::interfaces::IDManager> jointIDManager;
+            std::shared_ptr<mars::interfaces::JointManagerInterface> joints;
 
             template <class T>
             void handleAddedMotor(T e)

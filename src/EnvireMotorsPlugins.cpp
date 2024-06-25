@@ -21,8 +21,10 @@
 #include <mars_interfaces/MotorData.h>
 #include <mars_interfaces/sim/SimulatorInterface.h>
 #include <mars_interfaces/sim/MotorManagerInterface.h>
+#include <mars_interfaces/sim/JointManagerInterface.h>
 
 #include <mars_core/MotorManager.hpp>
+#include <mars_core/JointManager.hpp>
 
 
 namespace mars
@@ -40,7 +42,7 @@ namespace mars
             envireGraph{ControlCenter::envireGraph},
             graphTreeView{ControlCenter::graphTreeView},
             motors{ControlCenter::motors},
-            jointIDManager{ControlCenter::jointIDManager_}
+            joints{ControlCenter::joints}
         {
             init();
         }
@@ -49,12 +51,12 @@ namespace mars
                                                  std::shared_ptr<envire::core::EnvireGraph> envireGraph,
                                                  std::shared_ptr<envire::core::TreeView> graphTreeView,
                                                  std::shared_ptr<interfaces::MotorManagerInterface> motors,
-                                                 std::shared_ptr<IDManager> jointIDManager) :
+                                                 std::shared_ptr<interfaces::JointManagerInterface> joints) :
             lib_manager::LibInterface{theManager},
             envireGraph{envireGraph},
             graphTreeView{graphTreeView},
             motors{motors},
-            jointIDManager(jointIDManager)
+            joints{joints}
         {
             init();
         }
@@ -180,8 +182,9 @@ namespace mars
             }
 
             // todo: can we get the joint id from the joint itself if we need it?
-            if(jointIDManager) {
-                motorData.jointIndex = jointIDManager->getID(jointName);
+            if(joints)
+            {
+                motorData.jointIndex = joints->getID(jointName);
             }
             if(motors)
             {
