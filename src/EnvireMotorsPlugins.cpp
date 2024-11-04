@@ -63,6 +63,7 @@ namespace mars
 
         void EnvireMotorsPlugins::init(void)
         {
+            if(libManager) libManager->acquireLibrary("mars_core");
             GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DC>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::PID>>::subscribe(envireGraph.get());
             GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DirectEffort>>::subscribe(envireGraph.get());
@@ -73,6 +74,14 @@ namespace mars
 
         EnvireMotorsPlugins::~EnvireMotorsPlugins()
         {
+            // unsubscribe from envire graph
+            GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DC>>::unsubscribe();
+            GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::PID>>::unsubscribe();
+            GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::DirectEffort>>::unsubscribe();
+            GraphItemEventDispatcher<envire::core::Item<::envire::types::motors::FeedForwardEffort>>::unsubscribe();
+            GraphItemEventDispatcher<envire::core::Item<std::shared_ptr<core::SimMotor>>>::unsubscribe();
+
+            if(libManager) libManager->releaseLibrary("mars_core");
         }
 
         // TODO: this should be moved out from here
